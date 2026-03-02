@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using UnityEngine;
 
 public partial class ResoniteBindingGenerator
@@ -99,6 +100,10 @@ public partial class ResoniteBindingGenerator
                 await GenerateArrayDeclaration(str, array, containerType);
                 break;
 
+            case DictionaryDefinition dictionary:
+                await GenerateDictionaryDeclaration(str, dictionary, containerType);
+                break;
+
             case SyncObjectMemberDefinition syncObject:
                 await GenerateSyncObjectDeclaration(str, syncObject, containerType);
                 break;
@@ -134,6 +139,10 @@ public partial class ResoniteBindingGenerator
 
             case ArrayDefinition array:
                 await GenerateArrayCollection(str, name, array, containerType);
+                break;
+
+            case DictionaryDefinition dictionary:
+                await GenerateDictionaryCollection(str, name, dictionary, containerType);
                 break;
 
             case SyncObjectMemberDefinition syncObject:
@@ -215,6 +224,23 @@ public partial class ResoniteBindingGenerator
         str.Append($">");
     }
 
+    async Task GenerateDictionaryDeclaration(StringBuilder str, DictionaryDefinition dictionary, TypeDefinition containerType)
+    {
+        var memberTypeDec = await GenerateTypeDeclaration(dictionary.Type, containerType);
+        var typeDec = await GenerateTypeDeclaration(dictionary.KeyType, containerType);
+
+        switch (dictionary.ElementDefinition)
+        {
+            default:
+                str.Append($"global::SyncDictionary<{memberTypeDec}, {typeDec}, ");
+                break;
+        }
+
+        await GenerateMemberDeclaration(str, dictionary.ElementDefinition, containerType);
+
+        str.Append($">");
+    }
+
     async Task GenerateArrayDeclaration(StringBuilder str, ArrayDefinition array, TypeDefinition containerType)
     {
         var typeDec = await GenerateTypeDeclaration(array.ValueType, containerType);
@@ -285,6 +311,16 @@ public partial class ResoniteBindingGenerator
 
         // Generate collection for the nested member 
         await GenerateMemberCollection(str, "m", list.ElementDefinition, containerType);
+
+        str.Append(@")");
+    }
+
+    async Task GenerateDictionaryCollection(StringBuilder str, string name, DictionaryDefinition dictionary, TypeDefinition containerType)
+    {
+        str.Append($@"{name}.ToLinkDictionary(context, m => ");
+
+        // Generate collection for the nested member 
+        await GenerateMemberCollection(str, "m", dictionary.ElementDefinition, containerType);
 
         str.Append(@")");
     }

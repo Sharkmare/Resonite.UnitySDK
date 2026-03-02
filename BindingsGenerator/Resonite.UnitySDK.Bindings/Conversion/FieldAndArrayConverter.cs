@@ -1790,4 +1790,807 @@ public static class FieldArrayConverter
             
         throw new NotSupportedException($"Unsupported value type: {typeof(T).FullName}");
     }
+
+    public static SyncDictionary ToResoniteLinkDictionary<TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TElement>> dictionary,
+        Func<TElement, ResoniteLink.Member> conversion)
+    {
+        var keyType = typeof(TKey);
+
+        if(keyType.IsEnum)
+        {
+            var dict = new SyncDictionary_Enum();
+            dict.Elements = new();
+
+            foreach(var pair in dictionary)
+                dict.Elements.Add(pair.Key.ToString(), conversion(pair.Value));
+
+            return dict;
+        }
+
+        // Unity Primitives (and our extensions)
+                    if(keyType == typeof(UnityEngine.Vector2))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector2)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector3))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector3)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector4))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector4)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Quaternion))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Quaternion)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector2Int))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector2Int)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector3Int))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector3Int)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Matrix4x4))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Matrix4x4)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Color))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Color)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Color32))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Color32)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Rect))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Rect)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.RectInt))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.RectInt)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Bounds))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Bounds)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.QuaternionDouble))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.QuaternionDouble)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.ColorX))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.ColorX)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector2Bool))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector2Bool)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector3Bool))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector3Bool)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector4Bool))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector4Bool)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector2Byte))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector2Byte)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector3Byte))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector3Byte)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector4Byte))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector4Byte)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector2Ushort))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector2Ushort)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector3Ushort))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector3Ushort)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector4Ushort))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector4Ushort)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector2Uint))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector2Uint)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector3Uint))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector3Uint)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector4Uint))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector4Uint)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector2Ulong))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector2Ulong)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector3Ulong))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector3Ulong)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector4Ulong))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector4Ulong)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector2Sbyte))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector2Sbyte)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector3Sbyte))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector3Sbyte)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector4Sbyte))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector4Sbyte)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector2Short))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector2Short)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector3Short))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector3Short)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector4Short))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector4Short)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector2Long))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector2Long)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector3Long))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector3Long)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector4Long))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector4Long)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector2Double))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector2Double)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector3Double))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector3Double)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Vector4Double))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Vector4Double)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Matrix2x2))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Matrix2x2)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Matrix3x3))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Matrix3x3)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Matrix2x2Double))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Matrix2x2Double)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Matrix3x3Double))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Matrix3x3Double)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+                        if(keyType == typeof(UnityEngine.Matrix4x4Double))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.Matrix4x4Double)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+            
+        // All other primitives
+                    if(keyType == typeof(byte))
+            {
+                var dict = new SyncDictionary_byte();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((byte)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(ushort))
+            {
+                var dict = new SyncDictionary_ushort();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((ushort)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(uint))
+            {
+                var dict = new SyncDictionary_uint();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((uint)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(ulong))
+            {
+                var dict = new SyncDictionary_ulong();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((ulong)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(sbyte))
+            {
+                var dict = new SyncDictionary_sbyte();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((sbyte)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(short))
+            {
+                var dict = new SyncDictionary_short();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((short)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(int))
+            {
+                var dict = new SyncDictionary_int();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((int)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(long))
+            {
+                var dict = new SyncDictionary_long();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((long)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(float))
+            {
+                var dict = new SyncDictionary_float();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((float)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(double))
+            {
+                var dict = new SyncDictionary_double();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((double)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(decimal))
+            {
+                var dict = new SyncDictionary_decimal();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((decimal)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(bool))
+            {
+                var dict = new SyncDictionary_bool();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((bool)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(char))
+            {
+                var dict = new SyncDictionary_char();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((char)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(string))
+            {
+                var dict = new SyncDictionary_string();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((string)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(Uri))
+            {
+                var dict = new SyncDictionary_Uri();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((Uri)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(DateTime))
+            {
+                var dict = new SyncDictionary_DateTime();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((DateTime)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(TimeSpan))
+            {
+                var dict = new SyncDictionary_TimeSpan();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((TimeSpan)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(color))
+            {
+                var dict = new SyncDictionary_color();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((color)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(colorX))
+            {
+                var dict = new SyncDictionary_colorX();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((colorX)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(color32))
+            {
+                var dict = new SyncDictionary_color32();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((color32)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(Rect))
+            {
+                var dict = new SyncDictionary_Rect();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((Rect)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(IntRect))
+            {
+                var dict = new SyncDictionary_IntRect();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((IntRect)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(BoundingBox))
+            {
+                var dict = new SyncDictionary_BoundingBox();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((BoundingBox)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(float2))
+            {
+                var dict = new SyncDictionary_float2();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((float2)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(double2))
+            {
+                var dict = new SyncDictionary_double2();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((double2)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(byte2))
+            {
+                var dict = new SyncDictionary_byte2();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((byte2)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(ushort2))
+            {
+                var dict = new SyncDictionary_ushort2();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((ushort2)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(uint2))
+            {
+                var dict = new SyncDictionary_uint2();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((uint2)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(ulong2))
+            {
+                var dict = new SyncDictionary_ulong2();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((ulong2)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(sbyte2))
+            {
+                var dict = new SyncDictionary_sbyte2();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((sbyte2)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(short2))
+            {
+                var dict = new SyncDictionary_short2();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((short2)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(int2))
+            {
+                var dict = new SyncDictionary_int2();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((int2)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(long2))
+            {
+                var dict = new SyncDictionary_long2();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((long2)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(bool2))
+            {
+                var dict = new SyncDictionary_bool2();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((bool2)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(float3))
+            {
+                var dict = new SyncDictionary_float3();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((float3)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(double3))
+            {
+                var dict = new SyncDictionary_double3();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((double3)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(byte3))
+            {
+                var dict = new SyncDictionary_byte3();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((byte3)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(ushort3))
+            {
+                var dict = new SyncDictionary_ushort3();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((ushort3)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(uint3))
+            {
+                var dict = new SyncDictionary_uint3();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((uint3)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(ulong3))
+            {
+                var dict = new SyncDictionary_ulong3();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((ulong3)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(sbyte3))
+            {
+                var dict = new SyncDictionary_sbyte3();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((sbyte3)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(short3))
+            {
+                var dict = new SyncDictionary_short3();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((short3)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(int3))
+            {
+                var dict = new SyncDictionary_int3();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((int3)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(long3))
+            {
+                var dict = new SyncDictionary_long3();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((long3)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(bool3))
+            {
+                var dict = new SyncDictionary_bool3();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((bool3)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(float4))
+            {
+                var dict = new SyncDictionary_float4();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((float4)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(double4))
+            {
+                var dict = new SyncDictionary_double4();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((double4)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(byte4))
+            {
+                var dict = new SyncDictionary_byte4();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((byte4)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(ushort4))
+            {
+                var dict = new SyncDictionary_ushort4();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((ushort4)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(uint4))
+            {
+                var dict = new SyncDictionary_uint4();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((uint4)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(ulong4))
+            {
+                var dict = new SyncDictionary_ulong4();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((ulong4)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(sbyte4))
+            {
+                var dict = new SyncDictionary_sbyte4();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((sbyte4)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(short4))
+            {
+                var dict = new SyncDictionary_short4();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((short4)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(int4))
+            {
+                var dict = new SyncDictionary_int4();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((int4)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(long4))
+            {
+                var dict = new SyncDictionary_long4();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((long4)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(bool4))
+            {
+                var dict = new SyncDictionary_bool4();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((bool4)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(floatQ))
+            {
+                var dict = new SyncDictionary_floatQ();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((floatQ)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(doubleQ))
+            {
+                var dict = new SyncDictionary_doubleQ();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((doubleQ)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(float2x2))
+            {
+                var dict = new SyncDictionary_float2x2();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((float2x2)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(double2x2))
+            {
+                var dict = new SyncDictionary_double2x2();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((double2x2)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(float3x3))
+            {
+                var dict = new SyncDictionary_float3x3();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((float3x3)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(double3x3))
+            {
+                var dict = new SyncDictionary_double3x3();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((double3x3)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(float4x4))
+            {
+                var dict = new SyncDictionary_float4x4();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((float4x4)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+                        if(keyType == typeof(double4x4))
+            {
+                var dict = new SyncDictionary_double4x4();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((double4x4)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+            
+        throw new NotSupportedException($"Unsupported key type: {typeof(TKey).FullName}");
+    }
+
+    static KeyValuePair<TKey, TElement> CreatePair<TKey, TElement>(TKey key, TElement element) => new KeyValuePair<TKey, TElement>(key, element);
 }

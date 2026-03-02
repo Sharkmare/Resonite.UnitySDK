@@ -268,4 +268,56 @@ public static class FieldArrayConverter
 
         throw new NotSupportedException($"Unsupported value type: {typeof(T).FullName}");
     }
+
+    public static SyncDictionary ToResoniteLinkDictionary<TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TElement>> dictionary,
+        Func<TElement, ResoniteLink.Member> conversion)
+    {
+        var keyType = typeof(TKey);
+
+        if(keyType.IsEnum)
+        {
+            var dict = new SyncDictionary_Enum();
+            dict.Elements = new();
+
+            foreach(var pair in dictionary)
+                dict.Elements.Add(pair.Key.ToString(), conversion(pair.Value));
+
+            return dict;
+        }
+
+        // Unity Primitives (and our extensions)
+        <#
+        foreach(var type in unityPrimitives)
+        {
+            #>
+            if(keyType == typeof(UnityEngine.<#=type#>))
+                return dictionary.Select(pair => CreatePair(((UnityEngine.<#=type#>)(object)pair.Key).ToResoniteLink(), pair.Value))
+                    .ToResoniteLinkDictionary(conversion);
+            <#
+        }
+        #>
+
+        // All other primitives
+        <#
+        foreach(var type in primitiveTypes)
+        {
+            #>
+            if(keyType == typeof(<#=type#>))
+            {
+                var dict = new SyncDictionary_<#=type#>();
+                dict.Elements = new();
+
+                foreach(var pair in dictionary)
+                    dict.Elements.Add((<#=type#>)(object)pair.Key, conversion(pair.Value));
+                
+                return dict;
+            }
+            <#
+        }
+        #>
+
+        throw new NotSupportedException($"Unsupported key type: {typeof(TKey).FullName}");
+    }
+
+    static KeyValuePair<TKey, TElement> CreatePair<TKey, TElement>(TKey key, TElement element) => new KeyValuePair<TKey, TElement>(key, element);
 }
