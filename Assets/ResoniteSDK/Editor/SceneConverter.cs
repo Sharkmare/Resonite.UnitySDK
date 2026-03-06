@@ -52,9 +52,12 @@ public class SceneConverter : IConversionContext
 
     public string GetId(IWorldElement o)
     {
+        if (o is null)
+            return null;
+
         // We need to treat slots differently, because they map to transforms
         if (o is FrooxEngine.Slot slot)
-            return GetTransformSlotId(slot.Wrapper.transform);
+            return GetTransformSlotId(slot.Transform);
 
         return _elementToId[o];
     }
@@ -68,7 +71,7 @@ public class SceneConverter : IConversionContext
         if (o is FrooxEngine.Slot slot)
         {
             allocated = false;
-            return GetTransformSlotId(slot.Wrapper.transform);
+            return GetTransformSlotId(slot.Transform);
         }
 
         if (!_elementToId.TryGetValue(o, out var id))
@@ -236,6 +239,11 @@ public class SceneConverter : IConversionContext
         ProcessRemovals(messages);
 
         SendOperationBatch(messages);
+
+        // Post processing
+        foreach (var root in roots)
+            foreach (var postprocessor in root.GetComponentsInChildren<IResoniteLinkPostProcessor>())
+                postprocessor.PostProcessConversion(this);
     }
 
     void SendOperationBatch(List<DataModelOperation> messages)
