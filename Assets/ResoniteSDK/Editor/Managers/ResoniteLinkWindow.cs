@@ -7,9 +7,16 @@ using ResoniteLink;
 using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
 using System.Linq;
+using System;
 
 public class ResoniteLinkWindow : EditorWindow
 {
+    public enum ConnectionMethod
+    {
+        AutoDiscovery,
+        Manual
+    }
+
     public enum ConnectionState
     {
         Disconnected,
@@ -18,6 +25,8 @@ public class ResoniteLinkWindow : EditorWindow
     }
 
     public int Port;
+
+    ConnectionMethod _connectionMethod;
 
     public ConnectionState State
     {
@@ -39,6 +48,9 @@ public class ResoniteLinkWindow : EditorWindow
 
     public LinkInterface Link => _linkInterface;
 
+    LinkSessionListener _listener;
+    List<ResoniteLinkSession> _sessions = new List<ResoniteLinkSession>();
+
     [SerializeField]
     SceneConverter _converter;
 
@@ -59,15 +71,52 @@ public class ResoniteLinkWindow : EditorWindow
 
     void OnGUI()
     {
+        if(_listener == null)
+        {
+            _listener = new LinkSessionListener();
+            _listener.SessionDiscovered += SessionDiscovered;
+            _listener.SessionUpdated += SessionUpdated;
+            _listener.SessionClosed += SessionClosed;
+            _listener.Start();
+        }
+
         EnsureConverter();
 
+        var connectionMethodNames = Enum.GetNames(typeof(ConnectionMethod));
+
         GUI.enabled = State == ConnectionState.Disconnected;
-        Port = EditorGUILayout.IntField("Port: ", Port);
 
-        GUI.enabled = State != ConnectionState.Connecting;
+        _connectionMethod = (ConnectionMethod)GUILayout.SelectionGrid((int)_connectionMethod, 
+            connectionMethodNames, connectionMethodNames.Length);
 
-        if (GUILayout.Button(ConnectButtonLabel))
-            ConnectPressed();
+        switch(_connectionMethod)
+        {
+            case ConnectionMethod.AutoDiscovery:
+                _sessions.Clear();
+                _listener.GetDiscoveredSessions(_sessions);
+
+                if (_sessions.Count == 0)
+                    GUILayout.Label("No ResoniteLink sessions found");
+                else
+                {
+                    foreach(var session in _sessions)
+                        if(GUILayout.Button($"Connect to session \"{session.SessionName}\" (port: {session.LinkPort})"))
+                        {
+                            Port = session.LinkPort;
+                            ConnectPressed();
+                        }
+                }
+                break;
+
+            case ConnectionMethod.Manual:
+                Port = EditorGUILayout.IntField("Port: ", Port);
+
+                GUI.enabled = State != ConnectionState.Connecting;
+
+                if (GUILayout.Button(ConnectButtonLabel))
+                    ConnectPressed();
+                break;
+        }        
 
         GUI.enabled = true;
         EditorGUILayout.LabelField($"ResoniteLinkStatus: ", StatusLabel);
@@ -109,6 +158,21 @@ public class ResoniteLinkWindow : EditorWindow
 
         if (GUILayout.Button("Reset conversion state"))
             ResetConversionState();
+    }
+
+    void SessionClosed(ResoniteLinkSession obj)
+    {
+        
+    }
+
+    void SessionUpdated(ResoniteLinkSession obj)
+    {
+        
+    }
+
+    void SessionDiscovered(ResoniteLinkSession obj)
+    {
+            
     }
 
     void EnsureConverter()
