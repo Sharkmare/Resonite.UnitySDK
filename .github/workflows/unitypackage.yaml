@@ -42,3 +42,9 @@ jobs:
         with:
           name: 'Resonite.UnitySDK'
           path: Builds/*.unitypackage
+
+      - name: 'Publish package to release if any.'
+        if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: 'Builds/ResoniteSDK.unitypackage'
