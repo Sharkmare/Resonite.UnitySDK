@@ -1,7 +1,7 @@
 name: 'Assets'
 description: 'In case an asset is mangled on conversion and other issues touching asset import. If you issue is purely graphical, please use the Graphical issue template.'
 
-labels: ["Component Conversion"]
+labels: ["Asset Conversion"]
 type: bug
 
 body:

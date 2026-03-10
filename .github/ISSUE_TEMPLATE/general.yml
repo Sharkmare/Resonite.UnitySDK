@@ -1,7 +1,7 @@
 name: 'General'
 description: 'For any other kinds of bugs concerning the SDK itself. This includes, but not limited to, installation issues and general bug during use.'
 
-labels: ["Component Conversion"]
+labels: ["bug"]
 type: bug
 
 body:
