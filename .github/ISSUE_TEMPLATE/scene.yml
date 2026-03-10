@@ -1,5 +1,5 @@
-name: 'Assets'
-description: 'In case an asset is mangled on conversion and other issues touching asset import. If you issue is purely graphical, please use the Graphical issue template.'
+name: 'Scene (Hierarchy/Components)'
+description: 'To report issues with the scene itself, EG colliders, properties, behaviours that are unexpected.'
 
 labels: ["Component Conversion"]
 type: bug
