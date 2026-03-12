@@ -30,6 +30,27 @@ body:
     validations:
       required: true
 
+  - type: input
+    id: version-resonite
+    attributes:
+      label: 'Resonite version'
+      description: 'Version of Resonite in use.'
+      placeholder: '2026.3.11.1400'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mods-present
+    attributes:
+      label: 'I tested the issue **without** mods.'
+      description: 'Did you test the issue without any mods to make sure it is not caused by those.'
+      options:
+        - 'Yes'
+        - 'No'
+      default: 0
+    validations:
+      required: true
+
   - type: textarea
     id: what
     attributes:
