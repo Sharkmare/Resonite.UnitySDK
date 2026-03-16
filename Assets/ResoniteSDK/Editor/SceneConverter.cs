@@ -14,11 +14,9 @@ public class SceneConverter : IConversionContext
     public string UniqueSessionId => _window.UniqueSessionId;
     public LinkInterface Link => _window.Link;
 
-    [SerializeField]
-    public bool ConvertSkybox = true;
-
     public bool IsRealtimeModeActive { get; private set; }
 
+    public bool ConvertSkybox => _window.ConvertSkybox;
     // TODO!!! Move this to a dedicated connection manager so the Window is only managing the UI?
     ResoniteLinkWindow _window;
 
