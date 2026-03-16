@@ -190,7 +190,9 @@ public class ResoniteLinkWindow : EditorWindow
             {
                 if (UniqueSessionId != _lastUniqueSessionId || _lastPort != Port)
                 {
-                    Debug.Log("Connected to a different ResoniteLink session. Resetting conversion state");
+                    Debug.Log("Connected to a different ResoniteLink session. Resetting conversion state.\n" +
+                        $"PrevID: {_lastUniqueSessionId}, NewID: {UniqueSessionId}, PrevPort: {_lastPort}, NewPort: {Port}");
+
                     ResetConversionState();
                     return;
                 }
