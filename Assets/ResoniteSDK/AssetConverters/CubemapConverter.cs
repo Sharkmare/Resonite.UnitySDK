@@ -8,10 +8,6 @@ using UnityEngine;
 
 public class CubemapConverter : AssetConverter<StaticCubemapWrapper, StaticCubemap, UnityEngine.Cubemap, FrooxEngine.Cubemap>
 {
-    public CubemapConverter(UnityEngine.Cubemap source, Transform assetsRoot) : base(source, assetsRoot)
-    {
-    }
-
     public override string AssetClass => "Cubemap";
     public override string AssetName => Source.name;
 

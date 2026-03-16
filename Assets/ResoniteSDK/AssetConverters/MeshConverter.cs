@@ -10,11 +10,6 @@ public class MeshConverter : AssetConverter<StaticMeshWrapper, StaticMesh, Unity
 {
     public const int MAX_UV_CHANNEL_COUNT = 8;
 
-    public MeshConverter(UnityEngine.Mesh source, Transform assetsRoot) : base(source, assetsRoot)
-    {
-        
-    }
-
     public override string AssetClass => "Mesh";
     public override string AssetName => Source.name;
     protected override Message GenerateConversion() => ConvertMesh(Source);

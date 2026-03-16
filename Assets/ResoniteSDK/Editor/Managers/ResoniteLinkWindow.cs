@@ -18,6 +18,7 @@ public class ResoniteLinkWindow : EditorWindow
     {
         Disconnected,
         Connecting,
+        Initializing,
         Connected,
     }
 
@@ -32,7 +33,12 @@ public class ResoniteLinkWindow : EditorWindow
             if(_linkInterface != null)
             {
                 if (_linkInterface.IsConnected)
-                    return ConnectionState.Connected;
+                {
+                    if (_uniqueSessionId == null)
+                        return ConnectionState.Initializing;
+                    else
+                        return ConnectionState.Connected;
+                }
                 else if (_connecting)
                     return ConnectionState.Connecting;
             }
@@ -40,6 +46,12 @@ public class ResoniteLinkWindow : EditorWindow
             return ConnectionState.Disconnected;
         }
     }
+
+    [SerializeField]
+    public bool ConvertSkybox = true;
+
+    [SerializeField]
+    public bool LogMessageJSON;
 
     public string UniqueSessionId => _uniqueSessionId;
 
@@ -58,6 +70,9 @@ public class ResoniteLinkWindow : EditorWindow
     string _resoniteVersion;
     string _resoniteLinkVersion;
     string _uniqueSessionId;
+
+    string _lastUniqueSessionId;
+    int _lastPort;
 
     [MenuItem("Resonite SDK/Open Resonite SDK Manager")]
     public static void ShowWindow()
@@ -126,14 +141,14 @@ public class ResoniteLinkWindow : EditorWindow
         // The current scene can only be sent when the realtime mode isn't active
         GUI.enabled = State == ConnectionState.Connected && !_converter.IsRealtimeModeActive;
 
-        _converter.ConvertSkybox = GUILayout.Toggle(_converter.ConvertSkybox, "Convert Skybox");
+        ConvertSkybox = GUILayout.Toggle(ConvertSkybox, "Convert Skybox");
 
         if (GUILayout.Button("Send Current Scene"))
             SendCurrentScene();
 
         GUI.enabled = State == ConnectionState.Connected;
 
-        if (!_converter.IsRealtimeModeActive)
+        if (!(_converter?.IsRealtimeModeActive ?? false))
         {
             if (GUILayout.Button("Start Realtime Mode"))
                 StartRealtimeMode();
@@ -148,6 +163,8 @@ public class ResoniteLinkWindow : EditorWindow
 
         GUILayout.Space(32);
         GUILayout.Label("DEBUGGING:");
+
+        LogMessageJSON = GUILayout.Toggle(LogMessageJSON, "Log Messages JSON");
 
         if (GUILayout.Button("Cleanup converters in the scene"))
             CleanupConverters();
@@ -166,10 +183,35 @@ public class ResoniteLinkWindow : EditorWindow
 
     void EnsureConverter()
     {
+        if (State != ConnectionState.Connected)
+            return;
+
+        if(_converter != null)
+        {
+            if(_converter.IsCorrupted)
+            {
+                Debug.Log("Conversion state potentially corrupted due to erorrs. Resetting conversion state");
+                ResetConversionState();
+                return;
+            }
+
+            if (UniqueSessionId != _lastUniqueSessionId || _lastPort != Port)
+            {
+                Debug.Log("Connected to a different ResoniteLink session. Resetting conversion state.\n" +
+                    $"PrevID: {_lastUniqueSessionId}, NewID: {UniqueSessionId}, PrevPort: {_lastPort}, NewPort: {Port}");
+
+                ResetConversionState();
+                return;
+            }
+        }
+
         if (_converter == null)
             _converter = new SceneConverter();
 
         _converter.EnsureInitialized(this);
+
+        _lastUniqueSessionId = UniqueSessionId;
+        _lastPort = Port;
     }
 
     void SendCurrentScene()
@@ -277,6 +319,7 @@ public class ResoniteLinkWindow : EditorWindow
     {
         ConnectionState.Disconnected => "Connect",
         ConnectionState.Connecting => "Connecting...",
+        ConnectionState.Initializing => "Initializing...",
         ConnectionState.Connected => "Disconnect",
     };
 
@@ -284,6 +327,7 @@ public class ResoniteLinkWindow : EditorWindow
     {
         ConnectionState.Disconnected => "Disconnected",
         ConnectionState.Connecting => $"Connecting to port {Port}...",
+        ConnectionState.Initializing => $"Initializing session...",
         ConnectionState.Connected => $"Connected on port {Port} (Resonite: {_resoniteVersion})"
     };
 }

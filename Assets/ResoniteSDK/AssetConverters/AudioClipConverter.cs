@@ -8,10 +8,6 @@ using UnityEngine;
 
 public class AudioClipConverter : AssetConverter<StaticAudioClipWrapper, StaticAudioClip, UnityEngine.AudioClip, FrooxEngine.AudioClip>
 {
-    public AudioClipConverter(UnityEngine.AudioClip source, Transform assetsRoot) : base(source, assetsRoot)
-    {
-    }
-
     public override string AssetClass => "AudioClip";
     public override string AssetName => Source.name;
 

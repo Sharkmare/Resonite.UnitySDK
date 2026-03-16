@@ -18,11 +18,6 @@ public class Texture2DConverter : AssetConverter<StaticTexture2DWrapper, StaticT
     bool _mipMaps;
     bool _readable;
 
-    public Texture2DConverter(UnityEngine.Texture2D source, Transform assetsRoot) : base(source, assetsRoot)
-    {
-        
-    }
-
     public override string AssetClass => "Texture2D";
     public override string AssetName => Source.name;
     protected override Message GenerateConversion()

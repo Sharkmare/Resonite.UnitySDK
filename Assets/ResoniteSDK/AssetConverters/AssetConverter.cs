@@ -5,18 +5,18 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-public abstract class AssetConverter
+public abstract class AssetConverter : MonoBehaviour
 {
-    ulong lastTimestamp;
+    public ulong LastTimestamp;
 
-    public void Convert(AssetConversionManager manager, LinkInterface link)
+    public void Convert(IConversionContext context, LinkInterface link)
     {
         var data = GenerateConversion();
         var name = AssetName;
 
         // Store the timestamp after the conversion
         // The timestamp can change during the conversion generation, so we make sure to change it after
-        lastTimestamp = GetAssetTimestamp();
+        LastTimestamp = GetAssetTimestamp();
 
         Task.Run(async () =>
         {
@@ -29,13 +29,13 @@ public abstract class AssetConverter
             }
 
             // Assign the URL of the converted asset
-            var updateData = UpdateProvider(result.AssetURL, manager.Converter);
+            var updateData = UpdateProvider(result.AssetURL, context);
 
             // Send the update! 
             // We could just do it all at once, but having it pop piece by piece is more interactive and looks cooler :3
             var update = new UpdateComponent()
             {
-                MessageID = manager.Converter.GetUniqueMessageId($"Update{AssetClass}Provider_{name}"),
+                MessageID = context.GetUniqueMessageId($"Update{AssetClass}Provider_{name}"),
                 Data = updateData,
             };
 
@@ -46,7 +46,7 @@ public abstract class AssetConverter
         }).Wait();
     }
 
-    public virtual bool HasAssetChanged() => GetAssetTimestamp() != lastTimestamp;
+    public virtual bool HasAssetChanged() => GetAssetTimestamp() != LastTimestamp;
 
     protected abstract ulong GetAssetTimestamp();
 
@@ -63,20 +63,22 @@ public abstract class AssetConverter<TWrapper, TProvider, TUnity, TResonite> : A
     where TResonite : FrooxEngine.IAsset
     where TUnity : UnityEngine.Object
 {
-    public readonly TUnity Source;
-    public TWrapper Provider { get; private set; }
+    public TUnity Source;
+    public TWrapper Provider;
 
-    protected AssetConverter(TUnity source, Transform assetsRoot)
+    public void Initialize(TUnity source)
     {
+        if (Source != null || Provider != null)
+            throw new InvalidOperationException("This converter has already been initialized");
+
         if(source == null)
             throw new ArgumentNullException(nameof(source));
 
         this.Source = source;
 
-        var root = new GameObject($"{typeof(TResonite).Name} - {AssetName}");
-        root.transform.parent = assetsRoot;
+        gameObject.name = $"{typeof(TResonite).Name} - {AssetName}";
 
-        Provider = root.AddComponent<TWrapper>();
+        Provider = gameObject.AddComponent<TWrapper>();
 
         Provider.Data.Enabled = true;
         Provider.Data.persistent = true;
