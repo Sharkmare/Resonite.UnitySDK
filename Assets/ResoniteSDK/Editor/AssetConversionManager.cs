@@ -53,23 +53,22 @@ public class AssetConversionManager
 
     public IAssetProvider<FrooxEngine.Mesh> GetMesh(UnityEngine.Mesh mesh) =>
         GetAsset<StaticMesh, StaticMeshWrapper, UnityEngine.Mesh, FrooxEngine.Mesh, MeshConverter>(
-            mesh, _meshes, (m, t) => new MeshConverter(m, t));
+            mesh, _meshes);
 
     public IAssetProvider<FrooxEngine.Texture2D> GetTexture2D(UnityEngine.Texture2D texture) =>
         GetAsset<StaticTexture2D, StaticTexture2DWrapper, UnityEngine.Texture2D, FrooxEngine.Texture2D, Texture2DConverter>(
-            texture, _textures, (m, t) => new Texture2DConverter(m, t));
+            texture, _textures);
 
     public IAssetProvider<FrooxEngine.Cubemap> GetCubemap(UnityEngine.Cubemap cubemap) =>
         GetAsset<StaticCubemap, StaticCubemapWrapper, UnityEngine.Cubemap, FrooxEngine.Cubemap, CubemapConverter>(
-            cubemap, _cubemaps, (m, t) => new CubemapConverter(m, t));
+            cubemap, _cubemaps);
 
     public IAssetProvider<FrooxEngine.AudioClip> GetAudioClip(UnityEngine.AudioClip audioClip) =>
         GetAsset<StaticAudioClip, StaticAudioClipWrapper, UnityEngine.AudioClip, FrooxEngine.AudioClip, AudioClipConverter>(
-            audioClip, _audioClips, (m, t) => new AudioClipConverter(m, t));
+            audioClip, _audioClips);
 
     TProvider GetAsset<TProvider, TWrapper, TUnity, TResonite, TConverter>(TUnity unity,
-        Dictionary<TUnity, TConverter> converters,
-        Func<TUnity, Transform, TConverter> conversionJobGenerator)
+        Dictionary<TUnity, TConverter> converters)
         where TProvider : FrooxEngine.Component, IAssetProvider<TResonite>, new()
         where TWrapper : ResoniteComponent<TProvider>
         where TResonite : FrooxEngine.IAsset
@@ -84,7 +83,11 @@ public class AssetConversionManager
         if (!converters.TryGetValue(unity, out var converter))
         {
             // There's no active converter for this, so create one
-            converter = conversionJobGenerator(unity, AssetsRoot);
+            var go = new GameObject();
+            go.transform.parent = AssetsRoot;
+
+            converter = go.AddComponent<TConverter>();
+            converter.Initialize(unity);
 
             // Since it's brand new it needs to be converted for the first time
             needsToConvert = true;
@@ -171,7 +174,7 @@ public class AssetConversionManager
 
                 EditorUtility.DisplayProgressBar("Converting assets...", $"{job.AssetClass}: {job.AssetName}", progress);
 
-                job.Convert(this, link);
+                job.Convert(Converter, link);
             }
 
             // Once conversions are processed, clear this. This is only relevant before the conversions take place
