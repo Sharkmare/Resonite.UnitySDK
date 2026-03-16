@@ -43,6 +43,10 @@ public class ResoniteLinkWindow : EditorWindow
 
     [SerializeField]
     public bool ConvertSkybox = true;
+
+    [SerializeField]
+    public bool LogMessageJSON;
+
     public string UniqueSessionId => _uniqueSessionId;
 
     public LinkInterface Link => _linkInterface;
@@ -150,6 +154,8 @@ public class ResoniteLinkWindow : EditorWindow
 
         GUILayout.Space(32);
         GUILayout.Label("DEBUGGING:");
+
+        LogMessageJSON = GUILayout.Toggle(LogMessageJSON, "Log Messages JSON");
 
         if (GUILayout.Button("Cleanup converters in the scene"))
             CleanupConverters();

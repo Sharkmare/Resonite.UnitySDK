@@ -272,30 +272,26 @@ public class SceneConverter : IConversionContext
         {
             Task.Run(async () =>
             {
-                try
+                // For debugging purposes
+                if(LogMessageJSON)
                 {
-                    // For quick debug purposes
-                    /*var operations = new DataModelOperationBatch();
+                    var operations = new DataModelOperationBatch();
                     operations.Operations = messages.ToList<Message>();
                     var json = System.Text.Json.JsonSerializer.Serialize(operations, ResoniteLink.LinkInterface.SerializationOptions);
-                    Debug.Log(json);*/
-
-                    var response = await Link.RunDataModelOperationBatch(messages);
-
-                    if (!response.Success)
-                    {
-                        Debug.LogError($"Data model batch operation failed: {response.ErrorInfo}");
-                        return;
-                    }
-
-                    foreach (var subResponse in response.Responses)
-                        if (!subResponse.Success)
-                            Debug.LogError($"Operation failed for {subResponse.SourceMessageID}: {subResponse.ErrorInfo}");
+                    Debug.Log(json);
                 }
-                catch (Exception ex)
+
+                var response = await Link.RunDataModelOperationBatch(messages);
+
+                if (!response.Success)
                 {
-                    Debug.LogError(ex);
+                    Debug.LogError($"Data model batch operation failed: {response.ErrorInfo}");
+                    return;
                 }
+
+                foreach (var subResponse in response.Responses)
+                    if (!subResponse.Success)
+                        Debug.LogError($"Operation failed for {subResponse.SourceMessageID}: {subResponse.ErrorInfo}");
             }).Wait();
         }
 
