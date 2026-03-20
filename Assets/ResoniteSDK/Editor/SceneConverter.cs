@@ -75,6 +75,9 @@ public class SceneConverter : IConversionContext
         // We need to treat slots differently, because they map to transforms
         if (o is FrooxEngine.Slot slot)
         {
+            if (slot.Transform == null)
+                throw new Exception($"Slot's transform reference is null! Is actually null: {slot.Transform is null}");
+
             allocated = false;
             return GetTransformSlotId(slot.Transform);
         }
