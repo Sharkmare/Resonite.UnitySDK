@@ -347,7 +347,10 @@ public class SceneConverter : IConversionContext
 
         if (transformsToRemove != null)
             foreach (var remove in transformsToRemove)
+            {
+                _existingSlots.Remove(remove);
                 _transformMap.Remove(remove);
+            }
 
         List<ResoniteComponent> componentsToRemove = null;
 
