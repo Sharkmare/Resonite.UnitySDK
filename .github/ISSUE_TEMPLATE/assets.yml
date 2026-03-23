@@ -15,7 +15,7 @@ body:
   - type: dropdown
     id: asset-type
     attributes:
-    label: 'Asset Type'
+      label: 'Asset Type'
       description: 'What asset type failed to convert? **IMPORTANT:** If what failed to convert is not in this list, then you're using wrong issue type. Please use a different issue!'
       options:
         - 'Mesh'
