@@ -75,11 +75,12 @@ Converting avatar generally follows the same process.
 ## What if something doesn't convert properly?
 If you run into content that doesn't convert at all or has conversion problems, best way is to make sure it's reported!
 
-1) First, determine what type of conversion problem did you run into:
-    - [Materials / Shaders](https://github.com/Yellow-Dog-Man/Resonite.UnitySDK/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22Material%2FShader%20Conversion%22)
-    - [Scene Hierarchy / Components](https://github.com/Yellow-Dog-Man/Resonite.UnitySDK/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22Component%20Conversion%22) (e.g. colliders, properties, behaviors and so on)
-    - [Assets](https://github.com/Yellow-Dog-Man/Resonite.UnitySDK/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22Asset%20Conversion%22) (e.g. garbled/missing meshes, textures not transferring on even supported materials...)
-    - [Something else broke](https://github.com/Yellow-Dog-Man/Resonite.UnitySDK/issues?q=is%3Aissue%20state%3Aopen%20label%3Abug) (general bugs)
+1) First, determine what exactly failed to convert:
+    - [Individual Material / Shader](https://github.com/Yellow-Dog-Man/Resonite.UnitySDK/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22Material%2FShader%20Conversion%22)
+    - [Individual Component](https://github.com/Yellow-Dog-Man/Resonite.UnitySDK/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22Component%20Conversion%22) (e.g. colliders, properties, behaviors and so on)
+    - [Individual Asset](https://github.com/Yellow-Dog-Man/Resonite.UnitySDK/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22Asset%20Conversion%22) (e.g. garbled/missing meshes, textures not transferring on even supported materials...)
+    - [Complex/Core Conversion](https://github.com/Yellow-Dog-Man/Resonite.UnitySDK/issues?q=is%3Aissue%20state%3Aopen%20label%3Abug) (entire scene, data primitive, avatar setup)
+    - [Something else broke](https://github.com/Yellow-Dog-Man/Resonite.UnitySDK/issues?q=is%3Aissue%20state%3Aopen%20label%3Abug) (general bugs, UI, editor tools...)
 2) Search if there's an existing issue first
     - You can click the types of conversion problems above to search by type!
     - It's better to collate conversion problems in one place than making multiple issues for the same one
