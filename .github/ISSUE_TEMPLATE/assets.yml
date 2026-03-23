@@ -16,7 +16,7 @@ body:
     id: asset-type
     attributes:
       label: 'Which asset type failed to convert?'
-      description: '**IMPORTANT:** If what failed to convert **is not a singular asset* and/or is not in this list**, then you are using wrong issue type. Please use a different issue template!'
+      description: '**IMPORTANT:** If what failed to convert **is not a singular asset and/or is not in this list**, then you are using wrong issue type. Please use a different issue template!'
       options:
         - 'Mesh'
         - 'Texture2D'
