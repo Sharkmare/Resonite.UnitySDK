@@ -17,8 +17,6 @@ public class ResoniteAvatarSetupWizard : EditorWindow
     [SerializeField] Vector2 _scrollPosition;
     [SerializeField] bool _showOptionalRefs;
 
-    static ResoniteAvatarSetupWizard _activeInstance;
-
     [MenuItem("Resonite SDK/Avatar Setup Wizard")]
     public static void ShowWindow()
     {
@@ -30,15 +28,12 @@ public class ResoniteAvatarSetupWizard : EditorWindow
 
     void OnEnable()
     {
-        _activeInstance = this;
         SceneView.duringSceneGui += OnSceneGUI;
     }
 
     void OnDisable()
     {
         SceneView.duringSceneGui -= OnSceneGUI;
-        if (_activeInstance == this)
-            _activeInstance = null;
     }
 
     void OnGUI()
