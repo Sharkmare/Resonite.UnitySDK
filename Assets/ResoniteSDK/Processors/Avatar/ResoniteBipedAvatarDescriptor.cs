@@ -35,39 +35,10 @@ public class ResoniteBipedAvatarDescriptor : MonoBehaviour, IConversionPostProce
     [ExecuteInEditMode]
     void Awake()
     {
-        // If biped has already been assigned, do not run the auto setup
         if (Biped != null)
             return;
 
-        // Try to initialize the biped on attach
-        Biped = GetComponent<Animator>();
-
-        // Initialize references
-        if (ViewpointReference == null && LeftHandReference == null && RightHandReference == null)
-        {
-            var references = new GameObject("References");
-            references.transform.SetParent(transform, false);
-            references.transform.localPosition = Vector3.zero;
-            references.transform.localRotation = Quaternion.identity;
-
-            var viewpoint = new GameObject("Viewpoint");
-            viewpoint.transform.SetParent(references.transform, false);
-            ViewpointReference = viewpoint.transform;
-
-            var leftHand = new GameObject("Left Hand");
-            leftHand.transform.SetParent(references.transform, false);
-            LeftHandReference = leftHand.transform;
-
-            SetupAnchors(LeftHandReference);
-
-            var rightHand = new GameObject("Right Hand");
-            rightHand.transform.SetParent(references.transform, false);
-            RightHandReference = rightHand.transform;
-
-            SetupAnchors(RightHandReference);
-
-            TryPositionReferences();
-        }
+        EnsureReferencesExist();
     }
 
     public Transform EnsureReferencesExist()
