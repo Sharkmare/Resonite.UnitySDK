@@ -526,11 +526,8 @@ public class ResoniteAvatarSetupWizard : EditorWindow
 
         var referencesParent = avatarDescriptor.EnsureReferencesExist();
         if (referencesParent != null)
-            avatarDescriptor.CreateOptionalReferenceSlots(referencesParent, _useGlobalOrientation);
-
-        avatarDescriptor.RepositionOptionalReference(avatarDescriptor.LeftFootReference, _leftFootOverride);
-        avatarDescriptor.RepositionOptionalReference(avatarDescriptor.RightFootReference, _rightFootOverride);
-        avatarDescriptor.RepositionOptionalReference(avatarDescriptor.HipsReference, _hipsOverride);
+            avatarDescriptor.CreateOptionalReferenceSlots(referencesParent, _useGlobalOrientation,
+                _leftFootOverride, _rightFootOverride, _hipsOverride);
 
         TrackCreatedReferenceHierarchy(setupTracker, avatarDescriptor);
 

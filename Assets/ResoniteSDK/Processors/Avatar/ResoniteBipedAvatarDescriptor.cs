@@ -81,7 +81,8 @@ public class ResoniteBipedAvatarDescriptor : MonoBehaviour, IConversionPostProce
         return references.transform;
     }
 
-    public void CreateOptionalReferenceSlots(Transform referencesParent, bool useGlobalOrientation = false)
+    public void CreateOptionalReferenceSlots(Transform referencesParent, bool useGlobalOrientation,
+        Transform leftFootOverride = null, Transform rightFootOverride = null, Transform hipsOverride = null)
     {
         if (referencesParent == null)
         {
@@ -94,28 +95,31 @@ public class ResoniteBipedAvatarDescriptor : MonoBehaviour, IConversionPostProce
 
         var avatarRootRotation = useGlobalOrientation ? Quaternion.identity : transform.rotation;
 
-        if (LeftFootReference == null)
+        if (leftFootOverride != null && LeftFootReference == null)
         {
             var leftFoot = new GameObject("Left Foot");
             leftFoot.transform.SetParent(referencesParent, false);
             LeftFootReference = leftFoot.transform;
             PositionReferenceAtBone(LeftFootReference, HumanBodyBones.LeftFoot, avatarRootRotation);
+            RepositionOptionalReference(LeftFootReference, leftFootOverride);
         }
 
-        if (RightFootReference == null)
+        if (rightFootOverride != null && RightFootReference == null)
         {
             var rightFoot = new GameObject("Right Foot");
             rightFoot.transform.SetParent(referencesParent, false);
             RightFootReference = rightFoot.transform;
             PositionReferenceAtBone(RightFootReference, HumanBodyBones.RightFoot, avatarRootRotation);
+            RepositionOptionalReference(RightFootReference, rightFootOverride);
         }
 
-        if (HipsReference == null)
+        if (hipsOverride != null && HipsReference == null)
         {
             var hips = new GameObject("Hips");
             hips.transform.SetParent(referencesParent, false);
             HipsReference = hips.transform;
             PositionReferenceAtBone(HipsReference, HumanBodyBones.Hips, avatarRootRotation);
+            RepositionOptionalReference(HipsReference, hipsOverride);
         }
     }
 
