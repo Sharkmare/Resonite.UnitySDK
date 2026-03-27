@@ -594,9 +594,9 @@ public class ResoniteBipedAvatarDescriptor : MonoBehaviour, IConversionPostProce
         var leftHandSlot = LeftHandReference.GetSlot();
         var rightHandSlot = RightHandReference.GetSlot();
 
-        var leftFootSlot = LeftFootReference != null ? LeftFootReference.GetSlot() : null;
-        var rightFootSlot = RightFootReference != null ? RightFootReference.GetSlot() : null;
-        var hipsSlot = HipsReference != null ? HipsReference.GetSlot() : null;
+        var leftFootSlot = LeftFootReference.GetSlot();
+        var rightFootSlot = RightFootReference.GetSlot();
+        var hipsSlot = HipsReference.GetSlot();
 
         if (leftFootSlot == null) Debug.Log("[ResoniteBipedAvatarDescriptor] No left foot reference provided, skipping.");
         if (rightFootSlot == null) Debug.Log("[ResoniteBipedAvatarDescriptor] No right foot reference provided, skipping.");
