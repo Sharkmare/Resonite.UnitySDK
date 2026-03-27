@@ -32,7 +32,6 @@ public class ResoniteBipedAvatarDescriptor : MonoBehaviour, IConversionPostProce
     public bool SetupFaceTracking = true;
     public bool SetupVolumeMeter = false;
 
-    [ExecuteInEditMode]
     void Awake()
     {
         if (Biped != null)
@@ -599,9 +598,9 @@ public class ResoniteBipedAvatarDescriptor : MonoBehaviour, IConversionPostProce
         var rightFootSlot = RightFootReference != null ? RightFootReference.GetSlot() : null;
         var hipsSlot = HipsReference != null ? HipsReference.GetSlot() : null;
 
-        if (leftFootSlot == null) Debug.LogWarning("[ResoniteBipedAvatarDescriptor] PostProcessConversion: LeftFootReference is null, skipping left foot slot.");
-        if (rightFootSlot == null) Debug.LogWarning("[ResoniteBipedAvatarDescriptor] PostProcessConversion: RightFootReference is null, skipping right foot slot.");
-        if (hipsSlot == null) Debug.LogWarning("[ResoniteBipedAvatarDescriptor] PostProcessConversion: HipsReference is null, skipping hips slot.");
+        if (leftFootSlot == null) Debug.Log("[ResoniteBipedAvatarDescriptor] No left foot reference provided, skipping.");
+        if (rightFootSlot == null) Debug.Log("[ResoniteBipedAvatarDescriptor] No right foot reference provided, skipping.");
+        if (hipsSlot == null) Debug.Log("[ResoniteBipedAvatarDescriptor] No hips reference provided, skipping.");
 
         Task.Run(async () =>
         {

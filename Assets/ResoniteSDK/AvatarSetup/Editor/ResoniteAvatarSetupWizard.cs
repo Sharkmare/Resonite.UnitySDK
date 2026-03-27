@@ -429,10 +429,8 @@ public class ResoniteAvatarSetupWizard : EditorWindow
                 Undo.SetCurrentGroupName("Try Auto Setup Tool Anchors");
                 int undoGroup = Undo.GetCurrentGroup();
 
-                if (avatarDescriptor.LeftHandReference != null)
-                    Undo.RecordObject(avatarDescriptor.LeftHandReference, "Position Left Tool Anchors");
-                if (avatarDescriptor.RightHandReference != null)
-                    Undo.RecordObject(avatarDescriptor.RightHandReference, "Position Right Tool Anchors");
+                RecordHandAnchorChildrenForUndo(avatarDescriptor.LeftHandReference);
+                RecordHandAnchorChildrenForUndo(avatarDescriptor.RightHandReference);
 
                 avatarDescriptor.TryAutoPositionToolAnchors();
 
@@ -650,6 +648,20 @@ public class ResoniteAvatarSetupWizard : EditorWindow
         var boneTransform = humanoidAnimator.GetBoneTransform(bone);
         string boneName = boneTransform != null ? boneTransform.name : "(not found)";
         EditorGUILayout.LabelField(label, boneName);
+    }
+
+    void RecordHandAnchorChildrenForUndo(Transform handReference)
+    {
+        if (handReference == null)
+            return;
+
+        var tooltip = handReference.Find("Tooltip");
+        var grabber = handReference.Find("Grabber");
+        var shelf = handReference.Find("Shelf");
+
+        if (tooltip != null) Undo.RecordObject(tooltip, "Position Tool Anchors");
+        if (grabber != null) Undo.RecordObject(grabber, "Position Tool Anchors");
+        if (shelf != null) Undo.RecordObject(shelf, "Position Tool Anchors");
     }
 
     void DrawOptionalRefWithAutoDetect(Animator humanoidAnimator, string label, ref Transform field, HumanBodyBones bone)
