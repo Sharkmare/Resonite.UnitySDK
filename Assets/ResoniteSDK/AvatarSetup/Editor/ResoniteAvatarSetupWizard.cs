@@ -252,11 +252,10 @@ public class ResoniteAvatarSetupWizard : EditorWindow
             return;
         }
 
-        if (avatarDescriptor != null)
-            EditorGUILayout.HelpBox("ResoniteBipedAvatarDescriptor already present. Setup will reconfigure it.", MessageType.Info);
-
         if (setupTracker != null)
-            EditorGUILayout.HelpBox("Previous wizard setup detected. Use Revert to undo, or Setup to reconfigure.", MessageType.Info);
+            EditorGUILayout.HelpBox("Previous setup detected. Use Revert to undo, or Setup to reconfigure.", MessageType.Info);
+        else if (avatarDescriptor != null)
+            EditorGUILayout.HelpBox("ResoniteBipedAvatarDescriptor already present. Setup will reconfigure it.", MessageType.Info);
     }
 
     void DrawDetectedBonesSection(Animator humanoidAnimator)
