@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -15,7 +16,9 @@ public class ResoniteAvatarSetupWizard : EditorWindow
     [SerializeField] Transform _hipsOverride;
     [SerializeField] Vector3 _viewpointOffset;
     [SerializeField] Vector2 _scrollPosition;
+    [SerializeField] bool _useGlobalOrientation;
     [SerializeField] bool _showOptionalRefs;
+    [SerializeField] bool _showRotationTools;
     [SerializeField] bool _showEditVisuals = true;
     [SerializeField] bool _showViewpointVisual = true;
     [SerializeField] bool _showLeftFootVisual = true;
@@ -30,19 +33,12 @@ public class ResoniteAvatarSetupWizard : EditorWindow
     {
         var window = GetWindow<ResoniteAvatarSetupWizard>();
         window.titleContent = new GUIContent("Avatar Setup Wizard");
-        window.minSize = new Vector2(400, 500);
+        window.minSize = new Vector2(420, 500);
         window.Show();
     }
 
-    void OnEnable()
-    {
-        SceneView.duringSceneGui += OnSceneGUI;
-    }
-
-    void OnDisable()
-    {
-        SceneView.duringSceneGui -= OnSceneGUI;
-    }
+    void OnEnable() => SceneView.duringSceneGui += OnSceneGUI;
+    void OnDisable() => SceneView.duringSceneGui -= OnSceneGUI;
 
     void OnGUI()
     {
@@ -61,17 +57,31 @@ public class ResoniteAvatarSetupWizard : EditorWindow
         {
             DrawDetectedBonesSection(humanoidAnimator);
             DrawViewpointSection(avatarDescriptor);
-            DrawOptionalReferencesSection(humanoidAnimator);
             DrawSetupOptionsSection();
-            DrawToolAnchorSection(avatarDescriptor);
+
+            EditorGUILayout.Space(6);
+            DrawActionButtons(hasValidAnimator, setupTracker, avatarDescriptor);
+            EditorGUILayout.Space(6);
+
+            DrawSeparator();
+            DrawOptionalReferencesSection(humanoidAnimator);
+            DrawRotationToolsSection(avatarDescriptor);
+
+            DrawSeparator();
             DrawEditVisualsSection();
         }
-
-        EditorGUILayout.Space(10);
-        DrawActionButtons(hasValidAnimator, setupTracker, avatarDescriptor);
+        else
+        {
+            EditorGUILayout.Space(10);
+            DrawActionButtons(hasValidAnimator, setupTracker, avatarDescriptor);
+        }
 
         EditorGUILayout.EndScrollView();
     }
+
+    // ─────────────────────────────────────────────
+    //  Scene Gizmos
+    // ─────────────────────────────────────────────
 
     void OnSceneGUI(SceneView sceneView)
     {
@@ -206,6 +216,10 @@ public class ResoniteAvatarSetupWizard : EditorWindow
         Handles.DrawLine(position, position + rotation * Vector3.right * length);
     }
 
+    // ─────────────────────────────────────────────
+    //  UI Sections
+    // ─────────────────────────────────────────────
+
     void DrawAvatarRootSection()
     {
         EditorGUILayout.LabelField("Avatar Root", EditorStyles.boldLabel);
@@ -239,7 +253,7 @@ public class ResoniteAvatarSetupWizard : EditorWindow
         }
 
         if (avatarDescriptor != null)
-            EditorGUILayout.HelpBox("BipedAvatarDescriptor already present. Setup will reconfigure it.", MessageType.Info);
+            EditorGUILayout.HelpBox("ResoniteBipedAvatarDescriptor already present. Setup will reconfigure it.", MessageType.Info);
 
         if (setupTracker != null)
             EditorGUILayout.HelpBox("Previous wizard setup detected. Use Revert to undo, or Setup to reconfigure.", MessageType.Info);
@@ -257,8 +271,8 @@ public class ResoniteAvatarSetupWizard : EditorWindow
 
             var leftEyeBone = humanoidAnimator.GetBoneTransform(HumanBodyBones.LeftEye);
             var rightEyeBone = humanoidAnimator.GetBoneTransform(HumanBodyBones.RightEye);
-            string eyeDetectionStatus = (leftEyeBone != null && rightEyeBone != null) ? "Detected" : "Not found (will estimate)";
-            EditorGUILayout.LabelField("Eyes", eyeDetectionStatus);
+            string eyeStatus = (leftEyeBone != null && rightEyeBone != null) ? "Detected" : "Not found (will estimate)";
+            EditorGUILayout.LabelField("Eyes", eyeStatus);
         }
 
         EditorGUILayout.Space(4);
@@ -279,39 +293,18 @@ public class ResoniteAvatarSetupWizard : EditorWindow
                 _viewpointOffset = editedLocalPosition;
             }
 
-            EditorGUILayout.BeginHorizontal();
             using (new EditorGUI.DisabledScope(true))
                 EditorGUILayout.Vector3Field("World Position", avatarDescriptor.ViewpointReference.position);
-            EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.HelpBox("Drag the position handle in the Scene View to adjust the viewpoint.", MessageType.None);
         }
         else
         {
             _viewpointOffset = EditorGUILayout.Vector3Field("Offset (applied on Setup)", _viewpointOffset);
-
-            EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Reset Offset", GUILayout.Width(100)))
                 _viewpointOffset = Vector3.zero;
-            EditorGUILayout.EndHorizontal();
         }
 
-        EditorGUILayout.Space(4);
-    }
-
-    void DrawOptionalReferencesSection(Animator humanoidAnimator)
-    {
-        _showOptionalRefs = EditorGUILayout.Foldout(_showOptionalRefs, "Optional References", true, EditorStyles.foldoutHeader);
-        if (!_showOptionalRefs)
-            return;
-
-        EditorGUI.indentLevel++;
-
-        DrawOptionalRefWithAutoDetect(humanoidAnimator, "Left Foot", ref _leftFootOverride, HumanBodyBones.LeftFoot);
-        DrawOptionalRefWithAutoDetect(humanoidAnimator, "Right Foot", ref _rightFootOverride, HumanBodyBones.RightFoot);
-        DrawOptionalRefWithAutoDetect(humanoidAnimator, "Hips", ref _hipsOverride, HumanBodyBones.Hips);
-
-        EditorGUI.indentLevel--;
         EditorGUILayout.Space(4);
     }
 
@@ -323,35 +316,155 @@ public class ResoniteAvatarSetupWizard : EditorWindow
         _setupEyes = EditorGUILayout.Toggle("Eye Setup", _setupEyes);
         _setupFaceTracking = EditorGUILayout.Toggle("Face Tracking", _setupFaceTracking);
         _setupVolumeMeter = EditorGUILayout.Toggle("Volume Meter", _setupVolumeMeter);
+        _useGlobalOrientation = EditorGUILayout.Toggle("Use Global Forward/Up", _useGlobalOrientation);
+
+        if (!_useGlobalOrientation && _avatarRoot != null && RootDeviatesFromGlobal())
+            EditorGUILayout.HelpBox("Root forward/up differs from global. Enable this if hips or feet are rotated incorrectly.", MessageType.Warning);
+
+        EditorGUILayout.Space(2);
+    }
+
+    void DrawActionButtons(bool hasValidAnimator, AvatarSetupTracker setupTracker, ResoniteBipedAvatarDescriptor avatarDescriptor)
+    {
+        EditorGUILayout.BeginHorizontal();
+
+        GUI.enabled = hasValidAnimator;
+        if (GUILayout.Button("Setup Avatar", GUILayout.Height(30)))
+            PerformSetup();
+
+        GUI.enabled = setupTracker != null;
+        if (GUILayout.Button("Revert Setup", GUILayout.Height(30)))
+            PerformRevert();
+
+        GUI.enabled = true;
+        EditorGUILayout.EndHorizontal();
+    }
+
+    void DrawOptionalReferencesSection(Animator humanoidAnimator)
+    {
+        _showOptionalRefs = EditorGUILayout.Foldout(_showOptionalRefs, "Optional References", true, EditorStyles.foldoutHeader);
+        if (!_showOptionalRefs)
+            return;
+
+        EditorGUI.indentLevel++;
+        DrawOptionalRefWithAutoDetect(humanoidAnimator, "Left Foot", ref _leftFootOverride, HumanBodyBones.LeftFoot);
+        DrawOptionalRefWithAutoDetect(humanoidAnimator, "Right Foot", ref _rightFootOverride, HumanBodyBones.RightFoot);
+        DrawOptionalRefWithAutoDetect(humanoidAnimator, "Hips", ref _hipsOverride, HumanBodyBones.Hips);
+        EditorGUI.indentLevel--;
 
         EditorGUILayout.Space(4);
     }
 
-    void DrawToolAnchorSection(ResoniteBipedAvatarDescriptor avatarDescriptor)
+    void DrawRotationToolsSection(ResoniteBipedAvatarDescriptor avatarDescriptor)
     {
-        if (avatarDescriptor == null) return;
-        if (avatarDescriptor.LeftHandReference == null && avatarDescriptor.RightHandReference == null) return;
+        if (avatarDescriptor == null)
+            return;
 
-        EditorGUILayout.LabelField("Tool Anchors", EditorStyles.boldLabel);
+        bool hasAnyRef = avatarDescriptor.LeftFootReference != null
+            || avatarDescriptor.RightFootReference != null
+            || avatarDescriptor.HipsReference != null
+            || avatarDescriptor.LeftHandReference != null
+            || avatarDescriptor.RightHandReference != null;
 
-        if (GUILayout.Button("Try Auto Setup Tool Anchors"))
+        if (!hasAnyRef)
+            return;
+
+        _showRotationTools = EditorGUILayout.Foldout(_showRotationTools, "Tools", true, EditorStyles.foldoutHeader);
+        if (!_showRotationTools)
+            return;
+
+        EditorGUI.indentLevel++;
+
+        if (avatarDescriptor.LeftFootReference != null || avatarDescriptor.RightFootReference != null)
         {
-            Undo.SetCurrentGroupName("Try Auto Setup Tool Anchors");
-            int undoGroup = Undo.GetCurrentGroup();
+            EditorGUILayout.LabelField("Feet", EditorStyles.miniBoldLabel);
 
-            if (avatarDescriptor.LeftHandReference != null)
-                Undo.RecordObject(avatarDescriptor.LeftHandReference, "Position Left Tool Anchors");
-            if (avatarDescriptor.RightHandReference != null)
-                Undo.RecordObject(avatarDescriptor.RightHandReference, "Position Right Tool Anchors");
+            EditorGUILayout.BeginHorizontal();
+            DrawSmallFixButton("Fix Left (Toes)", avatarDescriptor.LeftFootReference,
+                () => avatarDescriptor.TryFixFootRotation(false));
+            DrawSmallFixButton("Fix Right (Toes)", avatarDescriptor.RightFootReference,
+                () => avatarDescriptor.TryFixFootRotation(true));
+            EditorGUILayout.EndHorizontal();
 
-            avatarDescriptor.TryAutoPositionToolAnchors();
+            EditorGUILayout.BeginHorizontal();
+            DrawSmallFixButton("Mirror L \u2192 R", avatarDescriptor.RightFootReference,
+                () => avatarDescriptor.MirrorRotation(avatarDescriptor.LeftFootReference, avatarDescriptor.RightFootReference, 1));
+            DrawSmallFixButton("Mirror R \u2192 L", avatarDescriptor.LeftFootReference,
+                () => avatarDescriptor.MirrorRotation(avatarDescriptor.RightFootReference, avatarDescriptor.LeftFootReference, 1));
+            EditorGUILayout.EndHorizontal();
 
-            Undo.CollapseUndoOperations(undoGroup);
-            EditorSceneManager.MarkSceneDirty(_avatarRoot.scene);
-            SceneView.RepaintAll();
+            EditorGUILayout.BeginHorizontal();
+            DrawSmallFixButton("Compute Left", avatarDescriptor.LeftFootReference,
+                () => avatarDescriptor.RecomputeFootReference(false, _useGlobalOrientation));
+            DrawSmallFixButton("Compute Right", avatarDescriptor.RightFootReference,
+                () => avatarDescriptor.RecomputeFootReference(true, _useGlobalOrientation));
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space(4);
         }
 
-        EditorGUILayout.Space(4);
+        if (avatarDescriptor.HipsReference != null)
+        {
+            EditorGUILayout.LabelField("Hips", EditorStyles.miniBoldLabel);
+
+            EditorGUILayout.BeginHorizontal();
+            DrawSmallFixButton("Fix (Tail)", avatarDescriptor.HipsReference,
+                () => avatarDescriptor.TryFixHipsRotation());
+            DrawSmallFixButton("Fix (Belly)", avatarDescriptor.HipsReference,
+                () => avatarDescriptor.TryFixHipsRotationFromBelly());
+            EditorGUILayout.EndHorizontal();
+
+            DrawSmallFixButton("Compute Hips", avatarDescriptor.HipsReference,
+                () => avatarDescriptor.RecomputeHipsReference(_useGlobalOrientation));
+
+            EditorGUILayout.Space(4);
+        }
+
+        if (avatarDescriptor.LeftHandReference != null || avatarDescriptor.RightHandReference != null)
+        {
+            EditorGUILayout.LabelField("Tool Anchors", EditorStyles.miniBoldLabel);
+
+            if (GUILayout.Button("Try Auto Setup Tool Anchors", GUILayout.Height(22)))
+            {
+                Undo.SetCurrentGroupName("Try Auto Setup Tool Anchors");
+                int undoGroup = Undo.GetCurrentGroup();
+
+                if (avatarDescriptor.LeftHandReference != null)
+                    Undo.RecordObject(avatarDescriptor.LeftHandReference, "Position Left Tool Anchors");
+                if (avatarDescriptor.RightHandReference != null)
+                    Undo.RecordObject(avatarDescriptor.RightHandReference, "Position Right Tool Anchors");
+
+                avatarDescriptor.TryAutoPositionToolAnchors();
+
+                Undo.CollapseUndoOperations(undoGroup);
+                EditorSceneManager.MarkSceneDirty(_avatarRoot.scene);
+                SceneView.RepaintAll();
+            }
+
+            EditorGUILayout.Space(4);
+        }
+
+        EditorGUI.indentLevel--;
+    }
+
+    void DrawSmallFixButton(string label, Transform referenceSlot, Func<bool> fixAction)
+    {
+        GUI.enabled = referenceSlot != null;
+        if (GUILayout.Button(label, GUILayout.Height(22)))
+        {
+            Undo.RecordObject(referenceSlot, label);
+            if (!fixAction())
+            {
+                Debug.LogWarning($"[Avatar Setup Wizard] {label}: no suitable bone data found.");
+            }
+            else
+            {
+                EditorUtility.SetDirty(referenceSlot);
+                EditorSceneManager.MarkSceneDirty(referenceSlot.gameObject.scene);
+                SceneView.RepaintAll();
+            }
+        }
+        GUI.enabled = true;
     }
 
     void DrawEditVisualsSection()
@@ -378,21 +491,9 @@ public class ResoniteAvatarSetupWizard : EditorWindow
         EditorGUILayout.Space(4);
     }
 
-    void DrawActionButtons(bool hasValidAnimator, AvatarSetupTracker setupTracker, ResoniteBipedAvatarDescriptor avatarDescriptor)
-    {
-        EditorGUILayout.BeginHorizontal();
-
-        GUI.enabled = hasValidAnimator;
-        if (GUILayout.Button("Setup Avatar", GUILayout.Height(32)))
-            PerformSetup();
-
-        GUI.enabled = setupTracker != null;
-        if (GUILayout.Button("Revert Setup", GUILayout.Height(32)))
-            PerformRevert();
-
-        GUI.enabled = true;
-        EditorGUILayout.EndHorizontal();
-    }
+    // ─────────────────────────────────────────────
+    //  Setup / Revert
+    // ─────────────────────────────────────────────
 
     void PerformSetup()
     {
@@ -415,7 +516,7 @@ public class ResoniteAvatarSetupWizard : EditorWindow
         }
         else
         {
-            Undo.RecordObject(avatarDescriptor, "Reconfigure BipedAvatarDescriptor");
+            Undo.RecordObject(avatarDescriptor, "Reconfigure ResoniteBipedAvatarDescriptor");
         }
 
         avatarDescriptor.SetupProtection = _setupProtection;
@@ -423,12 +524,15 @@ public class ResoniteAvatarSetupWizard : EditorWindow
         avatarDescriptor.SetupFaceTracking = _setupFaceTracking;
         avatarDescriptor.SetupVolumeMeter = _setupVolumeMeter;
 
+        var referencesParent = avatarDescriptor.EnsureReferencesExist();
+        if (referencesParent != null)
+            avatarDescriptor.CreateOptionalReferenceSlots(referencesParent, _useGlobalOrientation);
+
         avatarDescriptor.RepositionOptionalReference(avatarDescriptor.LeftFootReference, _leftFootOverride);
         avatarDescriptor.RepositionOptionalReference(avatarDescriptor.RightFootReference, _rightFootOverride);
         avatarDescriptor.RepositionOptionalReference(avatarDescriptor.HipsReference, _hipsOverride);
 
-        if (isNewDescriptor)
-            TrackCreatedReferenceHierarchy(setupTracker, avatarDescriptor);
+        TrackCreatedReferenceHierarchy(setupTracker, avatarDescriptor);
 
         if (avatarDescriptor.ViewpointReference != null && _viewpointOffset != Vector3.zero)
         {
@@ -491,6 +595,10 @@ public class ResoniteAvatarSetupWizard : EditorWindow
         SceneView.RepaintAll();
     }
 
+    // ─────────────────────────────────────────────
+    //  Helpers
+    // ─────────────────────────────────────────────
+
     Animator GetValidHumanoidAnimator()
     {
         if (_avatarRoot == null)
@@ -510,6 +618,34 @@ public class ResoniteAvatarSetupWizard : EditorWindow
 
         // Reset the viewpoint offset, to prevent offset from previous avatar being applied
         _viewpointOffset = Vector3.zero;
+        _leftFootOverride = null;
+        _rightFootOverride = null;
+        _hipsOverride = null;
+
+        var existingDescriptor = _avatarRoot.GetComponent<ResoniteBipedAvatarDescriptor>();
+        if (existingDescriptor != null)
+        {
+            _setupProtection = existingDescriptor.SetupProtection;
+            _setupEyes = existingDescriptor.SetupEyes;
+            _setupFaceTracking = existingDescriptor.SetupFaceTracking;
+            _setupVolumeMeter = existingDescriptor.SetupVolumeMeter;
+        }
+    }
+
+    bool RootDeviatesFromGlobal()
+    {
+        var rootRotation = _avatarRoot.transform.rotation;
+        float forwardDot = Vector3.Dot(rootRotation * Vector3.forward, Vector3.forward);
+        float upDot = Vector3.Dot(rootRotation * Vector3.up, Vector3.up);
+        return forwardDot < 0.99f || upDot < 0.99f;
+    }
+
+    void DrawSeparator()
+    {
+        EditorGUILayout.Space(2);
+        var rect = EditorGUILayout.GetControlRect(false, 1);
+        EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.3f));
+        EditorGUILayout.Space(2);
     }
 
     void DrawBoneField(Animator humanoidAnimator, string label, HumanBodyBones bone)

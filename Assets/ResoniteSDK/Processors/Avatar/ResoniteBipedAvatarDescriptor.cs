@@ -47,6 +47,8 @@ public class ResoniteBipedAvatarDescriptor : MonoBehaviour, IConversionPostProce
         {
             var references = new GameObject("References");
             references.transform.SetParent(transform, false);
+            references.transform.localPosition = Vector3.zero;
+            references.transform.localRotation = Quaternion.identity;
 
             var viewpoint = new GameObject("Viewpoint");
             viewpoint.transform.SetParent(references.transform, false);
@@ -68,27 +70,65 @@ public class ResoniteBipedAvatarDescriptor : MonoBehaviour, IConversionPostProce
         }
     }
 
-    void CreateOptionalReferenceSlots(Transform referencesParent)
+    public Transform EnsureReferencesExist()
     {
+        if (Biped == null)
+            Biped = GetComponent<Animator>();
+
+        if (ViewpointReference != null && LeftHandReference != null && RightHandReference != null)
+            return ViewpointReference.parent;
+
+        var existingRefs = transform.Find("References");
+        if (existingRefs != null)
+            DestroyImmediate(existingRefs.gameObject);
+
+        var references = new GameObject("References");
+        references.transform.SetParent(transform, false);
+        references.transform.localPosition = Vector3.zero;
+        references.transform.localRotation = Quaternion.identity;
+
+        var viewpoint = new GameObject("Viewpoint");
+        viewpoint.transform.SetParent(references.transform, false);
+        ViewpointReference = viewpoint.transform;
+
+        var leftHand = new GameObject("Left Hand");
+        leftHand.transform.SetParent(references.transform, false);
+        LeftHandReference = leftHand.transform;
+        SetupAnchors(LeftHandReference);
+
+        var rightHand = new GameObject("Right Hand");
+        rightHand.transform.SetParent(references.transform, false);
+        RightHandReference = rightHand.transform;
+        SetupAnchors(RightHandReference);
+
+        LeftFootReference = null;
+        RightFootReference = null;
+        HipsReference = null;
+
+        TryPositionReferences();
+
+        return references.transform;
+    }
+
+    public void CreateOptionalReferenceSlots(Transform referencesParent, bool useGlobalOrientation = false)
+    {
+        if (referencesParent == null)
+        {
+            Debug.LogWarning("[ResoniteBipedAvatarDescriptor] CreateOptionalReferenceSlots: referencesParent is null.");
+            return;
+        }
+
         if (Biped == null || Biped.avatar == null || !Biped.avatar.isHuman)
             return;
 
-        // TODO!!! This is currently not used, because the computation is wrong for most avatars
-        // The references need to have the Z axis be actual forward, but they just take the transform of the bone
-        // which is not guaranteed to have Z be actual forward
-        // The purpose of the referecens is to tell the system what the actual alignment of the bone is, so using
-        // the bone alignment works if and only if the bone is already perfectly aligned
-        // This needs to be reworked to actually compute the directions and then compute proper alignment from that
-
-        var skeletonUp = ComputeSkeletonUp();
-        var skeletonForward = ComputeSkeletonForward(skeletonUp);
+        var avatarRootRotation = useGlobalOrientation ? Quaternion.identity : transform.rotation;
 
         if (LeftFootReference == null)
         {
             var leftFoot = new GameObject("Left Foot");
             leftFoot.transform.SetParent(referencesParent, false);
             LeftFootReference = leftFoot.transform;
-            AlignReferenceSlotToSkeleton(LeftFootReference, HumanBodyBones.LeftFoot, skeletonUp, skeletonForward);
+            PositionReferenceAtBone(LeftFootReference, HumanBodyBones.LeftFoot, avatarRootRotation);
         }
 
         if (RightFootReference == null)
@@ -96,7 +136,7 @@ public class ResoniteBipedAvatarDescriptor : MonoBehaviour, IConversionPostProce
             var rightFoot = new GameObject("Right Foot");
             rightFoot.transform.SetParent(referencesParent, false);
             RightFootReference = rightFoot.transform;
-            AlignReferenceSlotToSkeleton(RightFootReference, HumanBodyBones.RightFoot, skeletonUp, skeletonForward);
+            PositionReferenceAtBone(RightFootReference, HumanBodyBones.RightFoot, avatarRootRotation);
         }
 
         if (HipsReference == null)
@@ -104,55 +144,197 @@ public class ResoniteBipedAvatarDescriptor : MonoBehaviour, IConversionPostProce
             var hips = new GameObject("Hips");
             hips.transform.SetParent(referencesParent, false);
             HipsReference = hips.transform;
-            AlignReferenceSlotToSkeleton(HipsReference, HumanBodyBones.Hips, skeletonUp, skeletonForward);
+            PositionReferenceAtBone(HipsReference, HumanBodyBones.Hips, avatarRootRotation);
         }
     }
 
-    Vector3 ComputeSkeletonUp()
+    void PositionReferenceAtBone(Transform referenceSlot, HumanBodyBones bone, Quaternion avatarRootRotation)
     {
-        var hipsBone = Biped.GetBoneTransform(HumanBodyBones.Hips);
-        var spineBone = Biped.GetBoneTransform(HumanBodyBones.Spine);
-
-        if (hipsBone != null && spineBone != null)
-            return (spineBone.position - hipsBone.position).normalized;
-
-        return Vector3.up;
-    }
-
-    Vector3 ComputeSkeletonForward(Vector3 skeletonUp)
-    {
-        var headBone = Biped.GetBoneTransform(HumanBodyBones.Head);
-        if (headBone == null)
-            return Vector3.forward;
-
-        var leftEye = Biped.GetBoneTransform(HumanBodyBones.LeftEye);
-        var rightEye = Biped.GetBoneTransform(HumanBodyBones.RightEye);
-
-        Vector3 headForward;
-        if (leftEye != null && rightEye != null)
+        if (referenceSlot == null)
         {
-            var averageEyePosition = (leftEye.position + rightEye.position) * 0.5f;
-            headForward = averageEyePosition - headBone.position;
-        }
-        else
-        {
-            headForward = headBone.forward;
+            Debug.LogWarning($"[ResoniteBipedAvatarDescriptor] PositionReferenceAtBone: referenceSlot is null for {bone}.");
+            return;
         }
 
-        var flattenedForward = Vector3.ProjectOnPlane(headForward, skeletonUp).normalized;
-        if (flattenedForward.sqrMagnitude < 0.001f)
-            return Vector3.forward;
-
-        return flattenedForward;
-    }
-
-    void AlignReferenceSlotToSkeleton(Transform referenceSlot, HumanBodyBones bone, Vector3 skeletonUp, Vector3 skeletonForward)
-    {
         var boneTransform = Biped.GetBoneTransform(bone);
         if (boneTransform == null) return;
 
         referenceSlot.position = boneTransform.position;
-        referenceSlot.rotation = Quaternion.LookRotation(skeletonForward, skeletonUp);
+        referenceSlot.rotation = avatarRootRotation;
+    }
+
+    public bool RecomputeFootReference(bool isRightFoot, bool useGlobalOrientation = false)
+    {
+        var footReference = isRightFoot ? RightFootReference : LeftFootReference;
+        if (footReference == null)
+        {
+            Debug.LogWarning($"[ResoniteBipedAvatarDescriptor] RecomputeFootReference: {(isRightFoot ? "Right" : "Left")}FootReference is null.");
+            return false;
+        }
+
+        if (Biped == null)
+        {
+            Debug.LogWarning("[ResoniteBipedAvatarDescriptor] RecomputeFootReference: Biped is null.");
+            return false;
+        }
+
+        var rotation = useGlobalOrientation ? Quaternion.identity : transform.rotation;
+        PositionReferenceAtBone(footReference, isRightFoot ? HumanBodyBones.RightFoot : HumanBodyBones.LeftFoot, rotation);
+        return true;
+    }
+
+    public bool RecomputeHipsReference(bool useGlobalOrientation = false)
+    {
+        if (HipsReference == null)
+        {
+            Debug.LogWarning("[ResoniteBipedAvatarDescriptor] RecomputeHipsReference: HipsReference is null.");
+            return false;
+        }
+
+        if (Biped == null)
+        {
+            Debug.LogWarning("[ResoniteBipedAvatarDescriptor] RecomputeHipsReference: Biped is null.");
+            return false;
+        }
+
+        var rotation = useGlobalOrientation ? Quaternion.identity : transform.rotation;
+        PositionReferenceAtBone(HipsReference, HumanBodyBones.Hips, rotation);
+        return true;
+    }
+
+    public bool TryFixHipsRotation()
+    {
+        if (HipsReference == null || Biped == null)
+            return false;
+
+        var hipsBone = Biped.GetBoneTransform(HumanBodyBones.Hips);
+        if (hipsBone == null)
+            return false;
+
+        Transform tailChild = null;
+        for (int i = 0; i < hipsBone.childCount; i++)
+        {
+            if (hipsBone.GetChild(i).name.IndexOf("tail", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                tailChild = hipsBone.GetChild(i);
+                break;
+            }
+        }
+
+        if (tailChild == null)
+            return false;
+
+        var awayFromTail = (hipsBone.position - tailChild.position).normalized;
+        var flattenedForward = Vector3.ProjectOnPlane(awayFromTail, HipsReference.up).normalized;
+
+        if (flattenedForward.sqrMagnitude < 0.001f)
+            return false;
+
+        HipsReference.rotation = Quaternion.LookRotation(flattenedForward, HipsReference.up);
+        return true;
+    }
+
+    public bool TryFixHipsRotationFromBelly()
+    {
+        if (HipsReference == null || Biped == null)
+            return false;
+
+        var hipsBone = Biped.GetBoneTransform(HumanBodyBones.Hips);
+        if (hipsBone == null)
+            return false;
+
+        Transform bellyChild = null;
+        for (int i = 0; i < hipsBone.childCount; i++)
+        {
+            if (hipsBone.GetChild(i).name.IndexOf("belly", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                bellyChild = hipsBone.GetChild(i);
+                break;
+            }
+        }
+
+        if (bellyChild == null)
+            return false;
+
+        var towardsBelly = (bellyChild.position - hipsBone.position).normalized;
+        var flattenedForward = Vector3.ProjectOnPlane(towardsBelly, HipsReference.up).normalized;
+
+        if (flattenedForward.sqrMagnitude < 0.001f)
+            return false;
+
+        HipsReference.rotation = Quaternion.LookRotation(flattenedForward, HipsReference.up);
+        return true;
+    }
+
+    public bool MirrorRotation(Transform source, Transform target, int axisFlags)
+    {
+        if (source == null)
+        {
+            Debug.LogWarning("[ResoniteBipedAvatarDescriptor] MirrorRotation: source transform is null.");
+            return false;
+        }
+
+        if (target == null)
+        {
+            Debug.LogWarning("[ResoniteBipedAvatarDescriptor] MirrorRotation: target transform is null.");
+            return false;
+        }
+
+        var rootRotation = transform.rotation;
+        var inverseRootRotation = Quaternion.Inverse(rootRotation);
+
+        var localForward = inverseRootRotation * source.forward;
+        var localUp = inverseRootRotation * source.up;
+
+        if ((axisFlags & 1) != 0) { localForward.x = -localForward.x; localUp.x = -localUp.x; }
+        if ((axisFlags & 2) != 0) { localForward.y = -localForward.y; localUp.y = -localUp.y; }
+        if ((axisFlags & 4) != 0) { localForward.z = -localForward.z; localUp.z = -localUp.z; }
+
+        var mirroredForward = rootRotation * localForward;
+        var mirroredUp = rootRotation * localUp;
+
+        if (mirroredForward.sqrMagnitude < 0.001f)
+            return false;
+
+        target.rotation = Quaternion.LookRotation(mirroredForward, mirroredUp);
+        return true;
+    }
+
+    public bool TryFixFootRotation(bool isRightFoot)
+    {
+        var footReference = isRightFoot ? RightFootReference : LeftFootReference;
+        if (footReference == null || Biped == null)
+            return false;
+
+        var footBone = Biped.GetBoneTransform(isRightFoot ? HumanBodyBones.RightFoot : HumanBodyBones.LeftFoot);
+        if (footBone == null)
+            return false;
+
+        var toesBone = Biped.GetBoneTransform(isRightFoot ? HumanBodyBones.RightToes : HumanBodyBones.LeftToes);
+
+        if (toesBone == null)
+        {
+            for (int i = 0; i < footBone.childCount; i++)
+            {
+                if (footBone.GetChild(i).name.IndexOf("toe", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    toesBone = footBone.GetChild(i);
+                    break;
+                }
+            }
+        }
+
+        if (toesBone == null)
+            return false;
+
+        var footToToes = (toesBone.position - footBone.position).normalized;
+        var flattenedForward = Vector3.ProjectOnPlane(footToToes, footReference.up).normalized;
+
+        if (flattenedForward.sqrMagnitude < 0.001f)
+            return false;
+
+        footReference.rotation = Quaternion.LookRotation(flattenedForward, footReference.up);
+        return true;
     }
 
     void SetupAnchors(Transform root)
@@ -246,6 +428,12 @@ public class ResoniteBipedAvatarDescriptor : MonoBehaviour, IConversionPostProce
             centerPoint += forwardDir * 0.05f;
         }
 
+        if (ViewpointReference == null)
+        {
+            Debug.LogWarning("[ResoniteBipedAvatarDescriptor] TryPositionReferences: ViewpointReference is null.");
+            return;
+        }
+
         ViewpointReference.position = centerPoint;
         ViewpointReference.rotation = Quaternion.LookRotation(forwardDir, upDir);
 
@@ -277,11 +465,25 @@ public class ResoniteBipedAvatarDescriptor : MonoBehaviour, IConversionPostProce
 
         var rightArmForward = (rightHand.position - rightArmBase.position).normalized;
 
-        LeftHandReference.position = leftHand.position;
-        LeftHandReference.rotation = Quaternion.LookRotation(leftArmForward, Vector3.up);
+        if (LeftHandReference != null)
+        {
+            LeftHandReference.position = leftHand.position;
+            LeftHandReference.rotation = Quaternion.LookRotation(leftArmForward, Vector3.up);
+        }
+        else
+        {
+            Debug.LogWarning("[ResoniteBipedAvatarDescriptor] TryPositionReferences: LeftHandReference is null.");
+        }
 
-        RightHandReference.position = rightHand.position;
-        RightHandReference.rotation = Quaternion.LookRotation(rightArmForward, Vector3.up);
+        if (RightHandReference != null)
+        {
+            RightHandReference.position = rightHand.position;
+            RightHandReference.rotation = Quaternion.LookRotation(rightArmForward, Vector3.up);
+        }
+        else
+        {
+            Debug.LogWarning("[ResoniteBipedAvatarDescriptor] TryPositionReferences: RightHandReference is null.");
+        }
     }
 
     public void RepositionOptionalReference(Transform generatedSlot, Transform targetBone)
@@ -418,9 +620,13 @@ public class ResoniteBipedAvatarDescriptor : MonoBehaviour, IConversionPostProce
         var leftHandSlot = LeftHandReference.GetSlot();
         var rightHandSlot = RightHandReference.GetSlot();
 
-        var leftFootSlot = LeftFootReference.GetSlot();
-        var rightFootSlot = RightFootReference.GetSlot();
-        var hipsSlot = HipsReference.GetSlot();
+        var leftFootSlot = LeftFootReference != null ? LeftFootReference.GetSlot() : null;
+        var rightFootSlot = RightFootReference != null ? RightFootReference.GetSlot() : null;
+        var hipsSlot = HipsReference != null ? HipsReference.GetSlot() : null;
+
+        if (leftFootSlot == null) Debug.LogWarning("[ResoniteBipedAvatarDescriptor] PostProcessConversion: LeftFootReference is null, skipping left foot slot.");
+        if (rightFootSlot == null) Debug.LogWarning("[ResoniteBipedAvatarDescriptor] PostProcessConversion: RightFootReference is null, skipping right foot slot.");
+        if (hipsSlot == null) Debug.LogWarning("[ResoniteBipedAvatarDescriptor] PostProcessConversion: HipsReference is null, skipping hips slot.");
 
         Task.Run(async () =>
         {
