@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Resonite.UnitySDK.Core\Resonite.UnitySDK.Core.csproj" />
+    <ProjectReference Include="../Resonite.UnitySDK.Core/Resonite.UnitySDK.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Conversion\FieldAndArrayConverter.tt">
+    <None Update="Conversion/FieldAndArrayConverter.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>FieldAndArrayConverter.cs</LastGenOutput>
     </None>
@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Conversion\FieldAndArrayConverter.cs">
+    <Compile Update="Conversion/FieldAndArrayConverter.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>FieldAndArrayConverter.tt</DependentUpon>
@@ -43,7 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Extensions\StaticAssets\" />
+    <Folder Include="Extensions/StaticAssets/" />
   </ItemGroup>
 
 </Project>
