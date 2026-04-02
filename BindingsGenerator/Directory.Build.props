@@ -1,0 +1,10 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<HomeFolder>$([System.Environment]::GetFolderPath(SpecialFolder.UserProfile))/</HomeFolder>
+	<IsWindows>$([MSBuild]::IsOSPlatform('Windows'))</IsWindows>
+	<IsLinux>$([MSBuild]::IsOSPlatform('Linux'))</IsLinux>
+	<IsOSX>$([MSBuild]::IsOSPlatform('OSX'))</IsOSX>
+
+
+	<UnityEditorPath>C:/Program Files/Unity/</UnityEditorPath>
+	<UnityEditorPath Condition="'$(IsLinux)' == 'true'">$(HomeFolder)/Unity/</UnityEditorPath>
+</Project>
