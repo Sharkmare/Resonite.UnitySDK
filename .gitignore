@@ -39,6 +39,12 @@ Resonite.UnitySDK.sln
 # Visual Studio cache directory
 .vs/
 
+# Visual Studio: Code workspace directory
+.vscode/
+
+# Zed sworkspace directory
+.zed/
+
 # Gradle cache directory
 .gradle/
 
